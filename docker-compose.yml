@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16
+    container_name: fashion_shop
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: lam1782004
+      POSTGRES_DB: fashion_shop
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
