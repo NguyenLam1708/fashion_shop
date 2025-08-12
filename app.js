@@ -1,13 +1,24 @@
 const express = require('express');
-const authRoutes = require('./routes/authRoutes');
+const authRoutes = require('../backend/routes/authRoutes');
+const userRoutes = require('../backend/routes/userRoutes');
 const sequelize = require("../backend/config/db");
 const PORT = process.env.PORT || 3000;
 
 const app = express();
+
+// Cấu hình CORS
+app.use(cors({
+  origin: 'http://localhost:3000', // domain frontend của bạn
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true // nếu muốn gửi cookie/token qua CORS
+}));
+
 app.use(express.json());
 
 //Routes
 app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/user', userRoutes);
 
 //kết nối DB và chạy server
 sequelize.sync().then(() => {
