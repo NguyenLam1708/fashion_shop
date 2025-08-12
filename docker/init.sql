@@ -41,13 +41,21 @@ CREATE TABLE products (
 );
 
 -- Bảng cart
-CREATE TABLE cart (
+CREATE TABLE carts (
     id SERIAL PRIMARY KEY,
     user_id INT REFERENCES users(id) ON DELETE CASCADE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Bang cartItem
+CREATE TABLE cart_items (
+    id SERIAL PRIMARY KEY,
+    cart_id INT REFERENCES carts(id) ON DELETE CASCADE,
     product_id INT REFERENCES products(id) ON DELETE CASCADE,
     quantity INT NOT NULL DEFAULT 1,
     added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
 
 -- Bảng orders
 CREATE TABLE orders (
