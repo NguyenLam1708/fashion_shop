@@ -45,7 +45,7 @@ exports.register = async(req, res) => {
             text:`Mã OTP của bạn là : ${otpCode}. Hết hạn sau 10 phút`
         });
 
-        res.status(200).json({message: "Đăng ký thành công", userId: user.id});
+        res.status(200).json({message: "Đăng ký thành công", data:{userId: user.id}});
     } catch(err) {
         res.status(500).json({message: "Lỗi server", error: err.message});
     
