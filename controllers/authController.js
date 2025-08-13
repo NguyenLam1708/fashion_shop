@@ -119,8 +119,9 @@ exports.login = async(req,res) => {
             return res.status(400).json({message: "Email không tồn tại"});
         }
 
-        if (user.status !== "active") return res.status(400).json({ message: "Tài khoản chưa kích hoạt" });
-        
+        if (user.status === "pending") return res.status(400).json({ message: "Tài khoản chưa kích hoạt" });
+        if (user.status === "banned") return res.status(400).json({ message: "Tài khoản đã bị ban vui lòng liên hệ admin" });
+
         const isMatch = await bcrypt.compare(password, user.password);
         if(!isMatch){
             return res.status(400).json({message: "Mật khẩu không đúng"});
