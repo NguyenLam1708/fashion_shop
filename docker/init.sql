@@ -78,5 +78,5 @@ CREATE TABLE order_items (
 
 -- Thêm dữ liệu mẫu
 INSERT INTO categories (name) VALUES ('Glasses'), ('Sunglasses');
-INSERT INTO users (name, email, password, role)
-VALUES ('Admin', 'admin@example.com', '123456', 'admin');
+INSERT INTO users (name, email, password, role,status)
+VALUES ('Admin', 'admin@example.com', '$2b$10$IUQh/mI0o1HmzGsSPREc1elCk2TjSlXdzJdTii277a.2v9ha4Xt3y', 'admin','active');
