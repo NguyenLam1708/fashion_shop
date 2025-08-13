@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const authRoutes = require('../backend/routes/authRoutes');
 const userRoutes = require('../backend/routes/userRoutes');
 const sequelize = require("../backend/config/db");
@@ -6,7 +7,7 @@ const PORT = process.env.PORT || 3000;
 
 const app = express();
 
-// Cấu hình CORS
+// // Cấu hình CORS
 app.use(cors({
   origin: 'http://localhost:3000', // domain frontend của bạn
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
