@@ -19,7 +19,7 @@ app.use(express.json());
 
 //Routes
 app.use('/api/v1/auth', authRoutes);
-app.use('/api/v1/user', userRoutes);
+app.use('/api/v1/users', userRoutes);
 
 //kết nối DB và chạy server
 sequelize.sync().then(() => {
