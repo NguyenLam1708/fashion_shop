@@ -164,4 +164,33 @@ exports.getAllUsers = async (req,res) =>{
     }
 } 
 // chỉnh sửa người dùng
-// ban người dùng
+exports.updateUser = async (req,res) =>{
+    try{
+        const {id} = req.params;
+        const {name, phone, address, status, role} = req.body;
+
+        const user = await User.findByPk(id);
+        if(!user) return res.status(404).json({message:"Người dùng không tồn tại"});
+        user.update({
+            name: name || user.name,
+            phone: phone || user.phone,
+            address: address || user.address,
+            role: role || user.role,
+            status: status || user.status,
+        })
+        return res.status(200).json({ 
+            message: "Cập nhật thông tin người dùng thành công",
+            data: {
+                name: user.name,
+                phone: user.phone,
+                address: user.address,
+                role: user.role,
+                status: user.status 
+            }
+        });
+
+    } catch (error){
+        console.error(error);
+        return res.status(500).json({message:"Lỗi server", error: error.message})
+    };
+};
