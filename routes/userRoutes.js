@@ -4,5 +4,7 @@ const userController = require("../controllers/userController");
 const authMiddleware = require("../middleware/authMiddleware")
 
 router.get("/me", authMiddleware, userController.getMe);
+router.post("/change-password", authMiddleware, userController.changePassword);
+router.post("/change-info", authMiddleware, userController.changeInfo);
 
 module.exports = router;
