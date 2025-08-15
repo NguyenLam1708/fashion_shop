@@ -1,40 +1,29 @@
-const {DataTypes} = require("sequelize");
-const sequelize = require("../config/db");
+const mongoose = require("mongoose");
 
-const Order = sequelize.define("Order",{
-    id:{
-        type: DataTypes.INTEGER,
-        primaryKey:true,
-        autoIncrement:true
-    },
-    userId:{
-        type: DataTypes.INTEGER,
-        references:{
-            model:"users",
-            key:"id"
-        },
-        onDelete:"CASCADE"
-    },
-    totalAmount:{
-        type: DataTypes.DECIMAL(10,2),
-        allowNull:false
-    },
-    shippingAddress:{
-        type: DataTypes.TEXT,
-        allowNull: false
-    },
-        status:{
-        type: DataTypes.ENUM("pending", "confirmed","shipped", "delivered", "cancelled"),
-        defaultValue:"pending"
-    },
-    orderDate:{
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW
-    }
-},{
-    tableName:"orders",
-    timestamps:false,
-    underscored:true
-})
+const orderSchema = new mongoose.Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true
+  },
+  totalAmount: {
+    type: Number,
+    required: true,
+    min: [0, "Tổng tiền phải >= 0"]
+  },
+  shippingAddress: {
+    type: String,
+    required: true
+  },
+  status: {
+    type: String,
+    enum: ["pending", "confirmed", "shipped", "delivered", "cancelled"],
+    default: "pending"
+  },
+  orderDate: {
+    type: Date,
+    default: Date.now
+  }
+});
 
-module.exports = Order;
+module.exports = mongoose.model("Order", orderSchema);

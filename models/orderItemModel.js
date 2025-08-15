@@ -1,39 +1,26 @@
-const { DataTypes } = require("sequelize");
-const sequelize = require("../config/db");
+const mongoose = require("mongoose");
 
-const OrderItem = sequelize.define("OrderItem", {
-    id: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
-        primaryKey: true
-    },
-    orderId: {
-        type: DataTypes.INTEGER,
-        references: {
-            model: "orders", 
-            key: "id"
-        },
-        onDelete: "CASCADE"
-    },
-    productId: {
-        type: DataTypes.INTEGER,
-        references: {
-            model: "products", 
-            key: "id"
-        },
-        onDelete: "CASCADE"
-    },
-    quantity: {
-        type: DataTypes.INTEGER,
-        allowNull: false
-    },
-    price: {
-        type: DataTypes.DECIMAL(10, 2),
-        allowNull: false
-    }
-}, {
-    tableName: "order_items", 
-    underscored: true
+const orderItemSchema = new mongoose.Schema({
+  orderId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Order",
+    required: true
+  },
+  productId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Product",
+    required: true
+  },
+  quantity: {
+    type: Number,
+    required: true,
+    min: [1, "Số lượng phải >= 1"]
+  },
+  price: {
+    type: Number,
+    required: true,
+    min: [0, "Giá phải >= 0"]
+  }
 });
 
-module.exports = OrderItem;
+module.exports = mongoose.model("OrderItem", orderItemSchema);
