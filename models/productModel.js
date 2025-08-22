@@ -18,9 +18,9 @@ const productSchema = new mongoose.Schema({
     default: 0,
     min: [0, "Số lượng không được âm"]
   },
-  imageUrls: {
-    type: String,
-    match: [/^https?:\/\/.+/, "URL hình ảnh không hợp lệ"]
+  imageUrl: {
+    type: [String],
+    default: []   // để nếu không có ảnh vẫn lưu []
   },
   categoryId: {
     type: mongoose.Schema.Types.ObjectId,
