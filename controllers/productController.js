@@ -4,22 +4,17 @@ const Product = require("../models/productModel");
 exports.createProduct = async (req, res) => {
     try {
         const { name, description, price, quantity, categoryId, size, color } = req.body;
-        let imageUrl = null;
+        let imageUrl = [];
 
         if (req.files && req.files.length > 0) {
-            if (req.files.length === 1) {
-                imageUrl = `uploads/${req.files[0].filename}`;
-            } else {
-                imageUrl = req.files.map(file => `uploads/${file.filename}`);
-            }
+            imageUrl = req.files.map(file => `uploads/${file.filename}`);
         }
-
         const newProduct = await Product.create({
             name,
             description,
             price,
             quantity,
-            imageUrl,
+            imageUrl: imageUrl || [],
             categoryId,
             size,
             color
