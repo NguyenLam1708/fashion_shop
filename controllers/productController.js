@@ -1,14 +1,21 @@
 const Product = require("../models/productModel");
+const Category = require("../models/categoryModel");
 
 // Tạo sản phẩm mới
 exports.createProduct = async (req, res) => {
     try {
         const { name, description, price, quantity, categoryId, size, color } = req.body;
-        let imageUrl = [];
+        
+        const category = await Category.findById(categoryId);
+        if (!category) {
+            return res.status(400).json({ message: "Category không tồn tại" });
+        }
 
+        let imageUrl = [];
         if (req.files && req.files.length > 0) {
             imageUrl = req.files.map(file => `uploads/${file.filename}`);
         }
+
         const newProduct = await Product.create({
             name,
             description,
@@ -26,6 +33,13 @@ exports.createProduct = async (req, res) => {
         });
     } catch (error) {
         console.error(error);
+        // 4. Xử lý lỗi duplicate key
+        if (error.code === 11000) {
+            return res.status(400).json({
+                message: "Sản phẩm đã tồn tại (trùng name + size + color)"
+            });
+        }
+        
         res.status(500).json({ message: "Lỗi server", error: error.message });
     }
 };
@@ -81,6 +95,13 @@ exports.getProduct = async (req, res) => {
 exports.getProductByCategory = async (req, res) => {
     try {
         const { categoryId } = req.params;
+
+        // Kiểm tra category có tồn tại không
+        const category = await Category.findById(categoryId);
+        if (!category) {
+            return res.status(404).json({ message: "Category không tồn tại" });
+        }
+
         const products = await Product.find({ categoryId }).sort({ createdAt: -1 });
         res.status(200).json(products);
     } catch (error) {
@@ -88,6 +109,7 @@ exports.getProductByCategory = async (req, res) => {
         res.status(500).json({ message: "Lỗi server", error: error.message });
     }
 };
+
 
 // Xóa sản phẩm
 exports.deleteProduct = async (req, res) => {

@@ -40,5 +40,7 @@ const productSchema = new mongoose.Schema({
     default: Date.now
   }
 });
+// Ngăn trùng sản phẩm theo name + size + color
+productSchema.index({ name: 1, size: 1, color: 1 }, { unique: true });
 
 module.exports = mongoose.model("Product", productSchema);
