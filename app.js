@@ -3,6 +3,7 @@ const cors = require('cors');
 const authRoutes = require('../backend/routes/authRoutes');
 const userRoutes = require('../backend/routes/userRoutes');
 const productRoutes = require('../backend/routes/productRoutes');
+const categoryRoutes = require('../backend/routes/categoryRoutes');
 const connectDB = require("./config/db");
 const path = require('path');
 const PORT = process.env.PORT || 3000;
@@ -26,7 +27,7 @@ app.use(express.json());
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/products', productRoutes);
-
+app.use('/api/v1/category', categoryRoutes);
 
 //kết nối DB và chạy server
 // ====== Khởi động server ======
