@@ -1,154 +1,65 @@
-const Product = require("../models/productModel");
-const Category = require("../models/categoryModel");
+const productService = require("../services/productService");
 
-// Tạo sản phẩm mới
-exports.createProduct = async (req, res) => {
+class ProductController {
+  async createProduct(req, res) {
     try {
-        const { name, description, price, quantity, categoryId, size, color } = req.body;
-        
-        const category = await Category.findById(categoryId);
-        if (!category) {
-            return res.status(400).json({ message: "Category không tồn tại" });
-        }
-
-        let imageUrl = [];
-        if (req.files && req.files.length > 0) {
-            imageUrl = req.files.map(file => `uploads/${file.filename}`);
-        }
-
-        const newProduct = await Product.create({
-            name,
-            description,
-            price,
-            quantity,
-            imageUrl: imageUrl || [],
-            categoryId,
-            size,
-            color
-        });
-
-        res.status(201).json({
-            message: "Tạo sản phẩm thành công",
-            data: newProduct
-        });
+      const newProduct = await productService.createProduct(req.body, req.files);
+      res.status(201).json({ message: "Tạo sản phẩm thành công", data: newProduct });
     } catch (error) {
-        console.error(error);
-        // 4. Xử lý lỗi duplicate key
-        if (error.code === 11000) {
-            return res.status(400).json({
-                message: "Sản phẩm đã tồn tại (trùng name + size + color)"
-            });
-        }
-        
-        res.status(500).json({ message: "Lỗi server", error: error.message });
+      console.error(error);
+      res.status(error.status || 500).json({ message: error.message || "Lỗi server" });
     }
-};
+  }
 
-// Lấy tất cả sản phẩm có phân trang
-exports.getAllProducts = async (req, res) => {
+  async getAllProducts(req, res) {
     try {
-        let { page = 1, limit = 10 } = req.query;
-        page = parseInt(page);
-        limit = parseInt(limit);
-        const skip = (page - 1) * limit;
-
-        const [products, total] = await Promise.all([
-            Product.find({})
-                .select("name description price quantity size color categoryId createdAt imageUrl")
-                .sort({ createdAt: -1 })
-                .skip(skip)
-                .limit(limit),
-            Product.countDocuments()
-        ]);
-
-        res.status(200).json({
-            message: "Lấy danh sách sản phẩm thành công",
-            data: {
-                totalProducts: total,
-                totalPages: Math.ceil(total / limit),
-                currentPage: page,
-                products
-            }
-        });
+      const data = await productService.getAllProducts(req.query.page, req.query.limit);
+      res.status(200).json({ message: "Lấy danh sách sản phẩm thành công", data });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Lỗi server", error: error.message });
+      console.error(error);
+      res.status(500).json({ message: "Lỗi server", error: error.message });
     }
-};
+  }
 
-// Lấy 1 sản phẩm theo ID
-exports.getProduct = async (req, res) => {
+  async getProduct(req, res) {
     try {
-        const { id } = req.params;
-        const product = await Product.findById(id);
-        if (!product) {
-            return res.status(404).json({ message: "Không tìm thấy sản phẩm" });
-        }
-        res.status(200).json(product);
+      const product = await productService.getProductById(req.params.id);
+      res.status(200).json(product);
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Lỗi server", error: error.message });
+      console.error(error);
+      res.status(error.status || 500).json({ message: error.message });
     }
-};
+  }
 
-// Lấy sản phẩm theo category
-exports.getProductByCategory = async (req, res) => {
+  async getProductByCategory(req, res) {
     try {
-        const { categoryId } = req.params;
-
-        // Kiểm tra category có tồn tại không
-        const category = await Category.findById(categoryId);
-        if (!category) {
-            return res.status(404).json({ message: "Category không tồn tại" });
-        }
-
-        const products = await Product.find({ categoryId }).sort({ createdAt: -1 });
-        res.status(200).json(products);
+      const products = await productService.getProductsByCategory(req.params.categoryId);
+      res.status(200).json(products);
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Lỗi server", error: error.message });
+      console.error(error);
+      res.status(error.status || 500).json({ message: error.message });
     }
-};
+  }
 
-
-// Xóa sản phẩm
-exports.deleteProduct = async (req, res) => {
+  async deleteProduct(req, res) {
     try {
-        const { id } = req.params;
-        const product = await Product.findByIdAndDelete(id);
-        if (!product) {
-            return res.status(404).json({ message: "Không tìm thấy sản phẩm để xóa" });
-        }
-        res.status(200).json({ message: "Xóa sản phẩm thành công" });
+      await productService.deleteProduct(req.params.id);
+      res.status(200).json({ message: "Xóa sản phẩm thành công" });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Lỗi server", error: error.message });
+      console.error(error);
+      res.status(error.status || 500).json({ message: error.message });
     }
-};
+  }
 
-// Cập nhật sản phẩm
-exports.updateProduct = async (req, res) => {
+  async updateProduct(req, res) {
     try {
-        const { id } = req.params;
-        const { name, description, price, quantity, categoryId, size, color } = req.body;
-        let updateData = { name, description, price, quantity, categoryId, size, color };
-
-        if (req.files && req.files.length > 0) {
-            if (req.files.length === 1) {
-                updateData.imageUrl = `uploads/${req.files[0].filename}`;
-            } else {
-                updateData.imageUrl = req.files.map(file => `uploads/${file.filename}`);
-            }
-        }
-
-        const product = await Product.findByIdAndUpdate(id, updateData, { new: true });
-        if (!product) {
-            return res.status(404).json({ message: "Không tìm thấy sản phẩm để cập nhật" });
-        }
-
-        res.status(200).json({ message: "Cập nhật sản phẩm thành công", data: product });
+      const product = await productService.updateProduct(req.params.id, req.body, req.files);
+      res.status(200).json({ message: "Cập nhật sản phẩm thành công", data: product });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Lỗi server", error: error.message });
+      console.error(error);
+      res.status(error.status || 500).json({ message: error.message });
     }
-};
+  }
+}
+
+module.exports = new ProductController();
