@@ -1,5 +1,6 @@
 const Cart = require("../models/cartModel");
 const Product = require("../models/productModel");
+const mongoose = require("mongoose");
 
 class CartService {
   async getCart(userId) {
@@ -9,24 +10,53 @@ class CartService {
   }
 
   async addToCart(userId, productId, quantity) {
-    const product = await Product.findById(productId);
-    if (!product) throw new Error("Không tìm thấy sản phẩm");
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      throw { status: 400, message: "productId không hợp lệ" };
+    }
+    const qty = Number(quantity);
+    if (!Number.isInteger(qty) || qty <= 0) {
+      throw { status: 400, message: "Số lượng phải là số nguyên dương" };
+    }
 
+    // 2) Lấy sản phẩm + kiểm tra tồn kho
+    const product = await Product.findById(productId).select("quantity name price");
+    if (!product) throw { status: 404, message: "Không tìm thấy sản phẩm" };
+    if (qty > product.quantity) {
+      throw { status: 400, message: `Chỉ còn ${product.quantity} sản phẩm trong kho` };
+    }
+
+    // 3) Tìm/ tạo giỏ
     let cart = await Cart.findOne({ userId });
     if (!cart) {
       cart = new Cart({
         userId,
-        items: [{ productId, quantity }]
+        items: [{ productId, quantity: qty }]
       });
     } else {
-      const itemIndex = cart.items.findIndex(item => item.productId.equals(productId));
+      const itemIndex = cart.items.findIndex(
+        (item) => item.productId.toString() === productId
+      );
+
       if (itemIndex > -1) {
-        cart.items[itemIndex].quantity += quantity;
+        const currentQty = cart.items[itemIndex].quantity;
+        const newQty = currentQty + qty;
+
+        if (newQty > product.quantity) {
+          throw {
+            status: 400,
+            message: `Trong kho chỉ còn ${product.quantity}. Bạn đã có ${currentQty} trong giỏ.`
+          };
+        }
+        cart.items[itemIndex].quantity = newQty;
       } else {
-        cart.items.push({ productId, quantity });
+        cart.items.push({ productId, quantity: qty });
       }
     }
+
     await cart.save();
+    // (tuỳ chọn) populate để FE có đủ dữ liệu hiển thị
+    await cart.populate("items.productId", " name price imageUrl");
+
     return cart;
   }
 
