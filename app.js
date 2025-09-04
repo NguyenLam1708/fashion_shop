@@ -5,6 +5,7 @@ const userRoutes = require('../backend/routes/userRoutes');
 const productRoutes = require('../backend/routes/productRoutes');
 const categoryRoutes = require('../backend/routes/categoryRoutes');
 const cartRoutes = require('../backend/routes/cartRoutes');
+const orderRoutes = require('../backend/routes/orderRoutes');
 const connectDB = require("./config/db");
 const path = require('path');
 const PORT = process.env.PORT || 3000;
@@ -30,6 +31,7 @@ app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/products', productRoutes);
 app.use('/api/v1/category', categoryRoutes);
 app.use('/api/v1/cart', cartRoutes);
+app.use('/api/v1/orders', orderRoutes);
 
 //kết nối DB và chạy server
 // ====== Khởi động server ======
