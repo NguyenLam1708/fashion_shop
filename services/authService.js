@@ -74,7 +74,7 @@ class AuthService {
   async login({ email, password }) {
     const user = await User.findOne({ email });
     if (!user) throw new Error("Email không tồn tại");
-    if (user.status === "pending") throw new Error("Tài khoản chưa kích hoạt");
+    if (user.status === "pending") throw new Error("Tài khoản chưa kích hoạt.Vui lòng kiểm tra email để xác thực");
     if (user.status === "banned") throw new Error("Tài khoản đã bị ban");
 
     const isMatch = await bcrypt.compare(password, user.password);
