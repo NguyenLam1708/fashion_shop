@@ -12,25 +12,43 @@ class UserService {
   }
 
   async changePassword(userId, oldPassword, newPassword, confirmPassword) {
-    const user = await User.findById(userId).select("+password");
-    if (!user) throw new Error("Người dùng không tồn tại");
+    const user = await User.findById(userId).select("+password")
+    if (!user) throw new Error("Người dùng không tồn tại")
 
-    const isMatch = await bcrypt.compare(oldPassword, user.password);
-    if (!isMatch) throw new Error("Mật khẩu cũ không đúng");
-    if (oldPassword === newPassword) throw new Error("Mật khẩu mới không được giống mật khẩu cũ");
-    if (newPassword !== confirmPassword) throw new Error("Xác nhận mật khẩu mới không khớp");
+    const isMatch = await bcrypt.compare(oldPassword, user.password)
+    if (!isMatch) throw new Error("Mật khẩu cũ không đúng")
+    if (oldPassword === newPassword) throw new Error("Mật khẩu mới không được giống mật khẩu cũ")
+    if (newPassword !== confirmPassword) throw new Error("Xác nhận mật khẩu mới không khớp")
 
-    user.password = await bcrypt.hash(newPassword, 10);
-    await user.save();
+    user.password = newPassword
 
-    return true;
+    try {
+      // validate theo schema
+      await user.validate()
+    } catch (err) {
+      // bắt lỗi validate của mongoose
+      if (err.errors?.password?.kind === "minlength") {
+        throw new Error("Mật khẩu không được ít hơn 6 ký tự")
+      }
+      throw err
+    }
+
+    // hash rồi lưu
+    user.password = await bcrypt.hash(newPassword, 10)
+    await user.save()
+
+    return true
   }
 
   async changeInfo(userId, { name, address, phone }) {
     return await User.findByIdAndUpdate(
       userId,
       { $set: { name, address, phone } },
-      { new: true, select: "-otpCode -status -otpExpiresAt -password -role" }
+      { 
+        new: true, 
+        runValidators: true, 
+        select: "-otpCode -status -otpExpiresAt -password -role" 
+      }
     );
   }
 
