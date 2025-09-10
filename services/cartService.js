@@ -5,7 +5,7 @@ const mongoose = require("mongoose");
 class CartService {
   async getCart(userId) {
     const cart = await Cart.findOne({ userId })
-      .populate("items.productId", "name price imageUrl");
+      .populate("items.productId", "name price imageUrl size color");
     return cart;
   }
 
