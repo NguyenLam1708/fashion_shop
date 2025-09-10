@@ -4,8 +4,8 @@ const userController = require("../controllers/userController");
 const authMiddleware = require("../middleware/authMiddleware")
 
 router.get("/my-info", authMiddleware(), userController.getMe);
-router.post("/change-password", authMiddleware(), userController.changePassword);
-router.post("/change-info", authMiddleware(), userController.changeInfo);
+router.patch("/change-password", authMiddleware(), userController.changePassword);
+router.put("/change-info", authMiddleware(), userController.changeInfo);
 router.post("/forgot-password", userController.forgotPassword);
 
 //admin
