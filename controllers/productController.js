@@ -33,8 +33,20 @@ class ProductController {
 
   async getProductByCategory(req, res) {
     try {
-      const products = await productService.getProductsByCategory(req.params.categoryId);
-      res.status(200).json(products);
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 10;
+
+      // Giả sử productService.getProductsByCategory hỗ trợ phân trang
+      const { products, totalPages, currentPage } = await productService.getProductsByCategory(
+        req.params.categoryId,
+        page,
+        limit
+      );
+
+      res.status(200).json({
+        message: "Lấy sản phẩm theo category thành công",
+        data: { products, totalPages, currentPage }
+      });
     } catch (error) {
       console.error(error);
       res.status(error.status || 500).json({ message: error.message });
