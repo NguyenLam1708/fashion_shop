@@ -11,16 +11,6 @@ class UserController {
     }
   }
 
-  async getUserById(req, res) {
-    try {
-      const user = await userService.getUserById(req.params.id);
-      if (!user) return res.status(404).json({ message: "Người dùng không tồn tại" });
-      res.status(200).json({ message: "Lấy thông tin thành công", data: user });
-    } catch (err) {
-      res.status(500).json({ message: err.message });
-    }
-  }
-
   async changePassword(req, res) {
     try {
       const { oldPassword, newPassword, confirmPassword } = req.body;
@@ -72,9 +62,28 @@ class UserController {
           phone: user.phone,
           address: user.address,
           role: user.role,
-          status: user.status
         }
       });
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  }
+  
+  async banUser(req, res) {
+    try {
+      const user = await userService.banUser(req.params.id);
+      if (!user) return res.status(404).json({ message: "Người dùng không tồn tại" });
+      res.status(200).json({ message: "Người dùng đã bị cấm", data: { status: user.status } });
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  }
+
+  async activeUser(req, res) {
+    try {
+      const user = await userService.activeUser(req.params.id);
+      if (!user) return res.status(404).json({ message: "Người dùng không tồn tại" });
+      res.status(200).json({ message: "Người dùng đã được mở khóa", data: { status: user.status } });
     } catch (err) {
       res.status(500).json({ message: err.message });
     }
