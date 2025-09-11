@@ -8,6 +8,10 @@ const categorySchema = new mongoose.Schema({
     trim: true,
     maxlength: 100
   },
+  isDeleted: {
+    type: Boolean,
+    default: false
+  },
   createdAt: {
     type: Date,
     default: Date.now
