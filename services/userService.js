@@ -7,10 +7,6 @@ class UserService {
     return await User.findById(userId).select("-password -otpCode -otpExpiresAt -status");
   }
 
-  async getUserById(id) {
-    return await User.findById(id).select("-password -otpCode -otpExpiresAt");
-  }
-
   async changePassword(userId, oldPassword, newPassword, confirmPassword) {
     const user = await User.findById(userId).select("+password")
     if (!user) throw new Error("Người dùng không tồn tại")
@@ -99,12 +95,26 @@ class UserService {
     };
   }
 
-  async updateUser(id, { name, phone, address, status, role }) {
+  async updateUser(id, { name, phone, address, role }) {
     return await User.findByIdAndUpdate(
       id,
-      { $set: { name, phone, address, role, status } },
-      { new: true }
-      
+      { $set: { name, phone, address, role } },
+      { new: true, runValidators: true }
+    );
+  }
+  async banUser(id) {
+    return await User.findByIdAndUpdate(
+      id,
+      { $set: { status: "banned" } },
+      { new: true, runValidators: true }
+    );
+  }
+
+  async activeUser(id) {
+    return await User.findByIdAndUpdate(
+      id,
+      { $set: { status: "active" } },
+      { new: true, runValidators: true }
     );
   }
 }
